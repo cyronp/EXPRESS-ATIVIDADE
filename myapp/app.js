@@ -15,24 +15,30 @@ app.get('/item', (req, res) => {
     res.status(200).json(items);
 });
 
+app.get('/item/count', (req,res) =>{
+    // conta quantos items tem
+    res.status(200).json(items.length)
+})
+
 // get com id especifico
 app.get('/item/:id', (req, res) => {
-    const id = parseInt(req.params.id, 10)
-    const find = data.find(d => d.id === id)
-    if (find) {
-        res.status(200).json(items);
+    const id = parseInt(req.params.id)
+    // procura o id
+    const item = items.find(i => i.id === id)
+    if (item) {
+        res.status(200).json(item);
     } else {
-        res.status(400).json({message: 'Item nao encontrado!'})
+        res.status(404).json({message: 'Item nao encontrado!'})
     }
 });
 
 app.post('/item', (req, res) => {
     const {name} = req.body;
-    // Checa se o nome é menor que 3 caracteres
+    // checa se o nome é menor que 3 caracteres
     if (!name || typeof name !== 'string' || name.length <= 3) {  
         res.status(400).json({ error: 'Nome deve ter no minimo 3 caracteres' });
     }
-    // Se o item estiver certo realiza um push
+    // se o item estiver certo realiza um push
     else{
         const newItem = { id: items.length + 1, ...req.body };
         items.push(newItem);
@@ -50,6 +56,11 @@ app.delete('/item/:id', (req, res) => {
         res.status(404).json({mensage: "Item não encontrado"});
     }
 });
+// Remover todos os itens transformando o tamanho total para 0
+app.delete('/removeall', (req,res) => {
+    items.length = 0
+    res.status(200).json({mensage: "Todos os itens foram removidos com sucesso!"})
+})
 
 app.put('/item/:id', (req, res) => {
     const id = parseInt(req.params.id);
@@ -61,6 +72,18 @@ app.put('/item/:id', (req, res) => {
         res.status(404).json({ message: "Item não encontrado!"});
     }
 
+});
+
+app.patch('/item/:id', (req,res) =>{
+    const id = parseInt(req.params.id);
+    const item = items.find(i => i.id === id);
+    if (item){
+        // procura o item com o id fornecido, e modifica seu nome
+        (req.body.name); item.name = req.body.name;
+        res.status(200).json({mensage: "Item modificado com sucesso!" });
+    }else{
+        res.status(404).json({mensage: "Item nao foi encontrado"});
+    }
 });
 
 app.listen(port, () => {
